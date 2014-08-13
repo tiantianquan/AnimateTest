@@ -20,6 +20,7 @@ var Box = function(x,y,leftSide,topSide,rightSide,endSide){
   this.y = this.originY = y;
 
   this.rightY = this.y+this.leftSide;
+  this.leftY = this.y+this.leftSide;
 
   this.pointLeft = [];
   this.pointLeft[0] = {x:this.x,y:this.y};
@@ -54,14 +55,42 @@ Object.defineProperty(Box.prototype, 'rightY', {
   }
 })
 
+Object.defineProperty(Box.prototype, 'x', {
+  get:function(){
+    return this._x;
+  },
+  set:function(val){
+    this._x = val;
+
+    this.pointLeft = [];
+    this.pointLeft[0] = {x:this._x,y:this.y};
+    this.pointLeft[1] = {x:this._x,y:this.leftY}
+  }
+})
+
+Object.defineProperty(Box.prototype, 'leftY', {
+  get:function(){
+    return this._leftY;
+  },
+  set:function(val){
+    this._leftY = val;
+
+    this.pointLeft = [];
+    this.pointLeft[0] = {x:this.x,y:this.y};
+    this.pointLeft[1] = {x:this.x,y:this._leftY}
+  }
+})
+
+
 Box.prototype.move = function(){
   TweenLite.to(this,1,{rightX:this.rightX+this.topSide,onComplete:this.remove});
   TweenLite.to(this,1,{rightY:this.rightY-(this.leftSide-this.rightSide),onComplete:this.remove});
 }
 
 Box.prototype.remove=function(){
-  TweenLite.to(this,1,{rightX:this.x,onComplete:this.move});
-  TweenLite.to(this,1,{rightY:this.y+this.leftSide,onComplete:this.move});
+  this.aa = this.rightSide+this.endSide*(this.leftSide-this.rightSide)/this.topSide;
+  TweenLite.to(this,0.5,{x:this.x+(this.topSide-this.endSide)});
+  TweenLite.to(this,0.5,{leftY:this.y+this.aa});
 }
 
 Box.prototype.update = function(){
@@ -75,7 +104,7 @@ Box.prototype.update = function(){
   ctx.fill();
 }
 
-var box = new Box(100,100,200,100,100);
+var box = new Box(100,100,200,100,100,20);
 loop();
 function loop(){
   ctx.fillStyle = '#333';
